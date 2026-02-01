@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Construction Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100%;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+            gap: 0;
+        }
+        
+        .tab {
+            padding: 12px 5px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            border: none;
+            border-bottom: 4px solid transparent;
+            background: white;
+            min-height: 80px;
+            display: block;
+            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
+        }
+        
+        .tab:active {
+            background: #f8f9fa;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: #f8f9fa;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            padding-bottom: 60px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .mode-switch {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 8px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .input-group {
+            margin-bottom: 18px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            -webkit-appearance: none;
+        }
+        
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .result-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .result-big {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .result-big .label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .result-big .value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .peg-table {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .peg-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 100px;
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            gap: 10px;
+        }
+        
+        .peg-row.highlight {
+            background: #fff3cd;
+            font-weight: 600;
+        }
+        
+        .peg-number {
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .peg-distance {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .peg-level {
+            font-size: 16px;
+            font-weight: 700;
+            text-align: right;
+        }
+        
+        .alert {
+            background: #ff6b6b;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .helper-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Construction Calculator</h1>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="excavation">
+                🚜<br>Excavate
+            </button>
+            <button class="tab" data-tab="compaction">
+                📦<br>Compact
+            </button>
+            <button class="tab" data-tab="trench">
+                ⛏️<br>Trench
+            </button>
+            <button class="tab" data-tab="pipeline">
+                📍<br>Pipeline
+            </button>
+        </div>
+        
+        <!-- EXCAVATION TAB -->
+        <div class="tab-content active" id="excavation">
+            <div class="alert" id="excavationAlert"></div>
+            
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Length (m)</label>
+                    <input type="number" id="excLength" step="0.1" placeholder="13" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label>Width (m)</label>
+                    <input type="number" id="excWidth" step="0.1" placeholder="20" inputmode="decimal">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Depth (m)</label>
+                <input type="number" id="excDepth" step="0.1" placeholder="1.7" inputmode="decimal">
+            </div>
+            
+            <div class="input-group">
+                <label>Material Type</label>
+                <select id="soilType">
+                    <option value="sand">Sand (20%)</option>
+                    <option value="premix">Premix (20%)</option>
+                    <option value="clay" selected>Clay (25%)</option>
+                    <option value="gravel">Gravel (25%)</option>
+                    <option value="hard">Hard (30%)</option>
+                    <option value="rock">Rock (40%)</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label>Truck Size</label>
+                <select id="truckSize">
+                    <option value="6">6m³</option>
+                    <option value="10" selected>10m³</option>
+                </select>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateExcavation()">CALCULATE</button>
+            
+            <div class="results" id="excavationResults">
+                <div class="result-item">
+                    <span class="result-label">In-situ Volume:</span>
+                    <span class="result-value" id="inSituVol">-</span>
+                </div>
+                <div class="result-big">
+                    <div class="label">LOOSE TO CART</div>
+                    <div class="value" id="looseVol">-</div>
+                </div>
+                <div class="result-item" style="margin-top:15px; border-top:2px solid #ddd; padding-top:15px;">
+                    <span class="result-label">Truck Loads:</span>
+                    <span class="result-value" id="truckLoads">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- COMPACTION TAB -->
+        <div class="tab-content" id="compaction">
+            <div class="mode-switch">
+                <button class="mode-btn active" onclick="setCompactionMode('volume')" id="modeVolume">From m³</button>
+                <button class="mode-btn" onclick="setCompactionMode('area')" id="modeArea">From m²</button>
+            </div>
+            
+            <div class="alert" id="compactionAlert"></div>
+            
+            <div class="input-group">
+                <label>Material Type</label>
+                <select id="materialType">
+                    <option value="G5">G5</option>
+                    <option value="G2">G2</option>
+                    <option value="G7">G7</option>
+                    <option value="Selected">Selected</option>
+                    <option value="Sand">Sand</option>
+                </select>
+            </div>
+            
+            <div id="volumeMode">
+                <div class="input-group">
+                    <label>Compacted Volume (m³)</label>
+                    <input type="number" id="compactedVolume" placeholder="1000" inputmode="decimal">
+                </div>
+            </div>
+            
+            <div id="areaMode" style="display: none;">
+                <div class="input-group">
+                    <label>Area (m²)</label>
+                    <input type="number" id="layerArea" placeholder="6000" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label>Layer Depth</label>
+                    <select id="layerDepth">
+                        <option value="0.150">150mm</option>
+                        <option value="0.100">100mm</option>
+                        <option value="0.200">200mm</option>
+                        <option value="0.250">250mm</option>
+                        <option value="0.300">300mm</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Truck Size</label>
+                <select id="compTruck">
+                    <option value="6">6m³</option>
+                    <option value="10" selected>10m³</option>
+                </select>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateCompaction()">CALCULATE</button>
+            
+            <div class="results" id="compactionResults">
+                <div class="result-big">
+                    <div class="label">LOOSE TO ORDER</div>
+                    <div class="value" id="looseVolume">-</div>
+                </div>
+                <div class="result-item" style="margin-top:15px; border-top:2px solid #ddd; padding-top:15px;">
+                    <span class="result-label">Delivery Loads:</span>
+                    <span class="result-value" id="deliveryLoads">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TRENCH TAB -->
+        <div class="tab-content" id="trench">
+            <div class="mode-switch">
+                <button class="mode-btn active" onclick="setTrenchMode('simple')" id="modeSimple">Simple</button>
+                <button class="mode-btn" onclick="setTrenchMode('batter')" id="modeBatter">Batter</button>
+                <button class="mode-btn" onclick="setTrenchMode('manhole')" id="modeManhole">Manhole</button>
+            </div>
+            
+            <div class="alert" id="trenchAlert"></div>
+            
+            <!-- Simple Mode -->
+            <div id="simpleMode">
+                <div class="input-group">
+                    <label>Length (m)</label>
+                    <input type="number" id="trenchLength" placeholder="85" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label>Pipe Size</label>
+                    <select id="pipeSize">
+                        <option value="0.5">110mm (500mm)</option>
+                        <option value="0.6">160mm (600mm)</option>
+                        <option value="0.7">200mm (700mm)</option>
+                        <option value="0.8">300mm (800mm)</option>
+                        <option value="0.85">350mm (850mm)</option>
+                        <option value="0.9">400mm (900mm)</option>
+                        <option value="0.95">450mm (950mm)</option>
+                        <option value="1.0">500mm (1000mm)</option>
+                        <option value="1.1">600mm (1100mm)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Depth (m)</label>
+                    <input type="number" id="simpleDepth" placeholder="1.8" inputmode="decimal">
+                </div>
+            </div>
+            
+            <!-- Batter Mode -->
+            <div id="batterMode" style="display: none;">
+                <div class="input-group">
+                    <label>Length (m)</label>
+                    <input type="number" id="batterLength" placeholder="50" inputmode="decimal">
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Depth (m)</label>
+                        <input type="number" id="trenchDepth" placeholder="2.0" inputmode="decimal">
+                    </div>
+                    <div class="input-group">
+                        <label>Bottom (m)</label>
+                        <input type="number" id="bottomWidth" placeholder="0.6" inputmode="decimal">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Batter</label>
+                    <select id="batterSlope">
+                        <option value="0">Vertical</option>
+                        <option value="0.5">1:2</option>
+                        <option value="1" selected>1:1</option>
+                        <option value="1.5">1.5:1</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Manhole Mode -->
+            <div id="manholeMode" style="display: none;">
+                <div class="input-group">
+                    <label>MH A Invert (m)</label>
+                    <input type="number" id="mhStartInvert" step="0.001" placeholder="10.500" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label>MH B Invert (m)</label>
+                    <input type="number" id="mhEndInvert" step="0.001" placeholder="9.700" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label>Distance (m)</label>
+                    <input type="number" id="mhDistance" placeholder="85" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label>Trench Width (m)</label>
+                    <input type="number" id="mhWidth" step="0.1" value="0.6" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label>Cover Above Pipe (m)</label>
+                    <input type="number" id="mhCover" step="0.1" value="0.6" inputmode="decimal">
+                    <div class="helper-text">Ground level above pipe top</div>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateTrench()">CALCULATE</button>
+            
+            <div class="results" id="trenchResults">
+                <div id="trenchInfo"></div>
+                <div class="result-big">
+                    <div class="label">EXCAVATION VOLUME</div>
+                    <div class="value" id="trenchVolume">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PIPELINE TAB -->
+        <div class="tab-content" id="pipeline">
+            <div class="alert" id="pipelineAlert"></div>
+            
+            <div class="input-group">
+                <label>Start Invert (MH A)</label>
+                <input type="number" id="startLevel" step="0.001" placeholder="10.500" inputmode="decimal">
+            </div>
+            
+            <div class="input-group">
+                <label>End Invert (MH B)</label>
+                <input type="number" id="endLevel" step="0.001" placeholder="9.700" inputmode="decimal">
+            </div>
+            
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Distance (m)</label>
+                    <input type="number" id="distance" placeholder="40" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <label>Interval (m)</label>
+                    <input type="number" id="interval" placeholder="3" inputmode="decimal">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Bedding (m)</label>
+                <input type="number" id="bedding" step="0.001" value="0.150" inputmode="decimal">
+            </div>
+            
+            <button class="calculate-btn" onclick="calculatePipeline()">CALCULATE</button>
+            
+            <div class="results" id="pipelineResults">
+                <h3 style="margin-bottom: 15px; color: #667eea;">Gradient Info</h3>
+                <div class="result-item">
+                    <span class="result-label">Total Fall:</span>
+                    <span class="result-value" id="totalFall">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Gradient:</span>
+                    <span class="result-value" id="gradient">-</span>
+                </div>
+                <h3 style="margin: 20px 0 10px; color: #667eea;">Peg Schedule</h3>
+                <div class="peg-table" id="pegTable"></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © 2026 Jbix Pty Ltd
+        </div>
+    </div>
+    
+    <script>
+        let compactionMode = 'volume';
+        let trenchMode = 'simple';
+        
+        function switchTab(tabName) {
+            // Remove active from all tabs and content
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Add active to content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Find and activate the correct tab based on tabName
+            const tabs = document.querySelectorAll('.tab');
+            const tabIndex = ['excavation', 'compaction', 'trench', 'pipeline'].indexOf(tabName);
+            if (tabIndex !== -1 && tabs[tabIndex]) {
+                tabs[tabIndex].classList.add('active');
+            }
+        }
+        
+        function setCompactionMode(mode) {
+            compactionMode = mode;
+            document.getElementById('modeVolume').classList.toggle('active', mode === 'volume');
+            document.getElementById('modeArea').classList.toggle('active', mode === 'area');
+            document.getElementById('volumeMode').style.display = mode === 'volume' ? 'block' : 'none';
+            document.getElementById('areaMode').style.display = mode === 'area' ? 'block' : 'none';
+        }
+        
+        function setTrenchMode(mode) {
+            trenchMode = mode;
+            document.getElementById('modeSimple').classList.toggle('active', mode === 'simple');
+            document.getElementById('modeBatter').classList.toggle('active', mode === 'batter');
+            document.getElementById('modeManhole').classList.toggle('active', mode === 'manhole');
+            document.getElementById('simpleMode').style.display = mode === 'simple' ? 'block' : 'none';
+            document.getElementById('batterMode').style.display = mode === 'batter' ? 'block' : 'none';
+            document.getElementById('manholeMode').style.display = mode === 'manhole' ? 'block' : 'none';
+        }
+        
+        function calculateExcavation() {
+            const length = parseFloat(document.getElementById('excLength').value);
+            const width = parseFloat(document.getElementById('excWidth').value);
+            const depth = parseFloat(document.getElementById('excDepth').value);
+            const soilType = document.getElementById('soilType').value;
+            const truckSize = parseFloat(document.getElementById('truckSize').value);
+            
+            const bulkFactors = {
+                sand: 1.20, premix: 1.20, clay: 1.25,
+                gravel: 1.25, hard: 1.30, rock: 1.40
+            };
+            
+            const bulkFactor = bulkFactors[soilType];
+            const inSitu = length * width * depth;
+            const loose = inSitu * bulkFactor;
+            const loads = Math.ceil(loose / truckSize);
+            
+            document.getElementById('inSituVol').textContent = inSitu.toFixed(2) + ' m³';
+            document.getElementById('looseVol').textContent = loose.toFixed(2) + ' m³';
+            document.getElementById('truckLoads').textContent = loads + ' loads';
+            document.getElementById('excavationResults').classList.add('show');
+        }
+        
+        function calculateCompaction() {
+            const material = document.getElementById('materialType').value;
+            const truckSize = parseFloat(document.getElementById('compTruck').value);
+            
+            let compactedVol;
+            if (compactionMode === 'volume') {
+                compactedVol = parseFloat(document.getElementById('compactedVolume').value);
+            } else {
+                const area = parseFloat(document.getElementById('layerArea').value);
+                const depth = parseFloat(document.getElementById('layerDepth').value);
+                compactedVol = area * depth;
+            }
+            
+            const materials = {
+                G5: {c: 1.32, w: 0.10}, G2: {c: 1.28, w: 0.08},
+                G7: {c: 1.30, w: 0.10}, Selected: {c: 1.28, w: 0.12}, Sand: {c: 1.25, w: 0.15}
+            };
+            
+            const mat = materials[material];
+            const loose = compactedVol * mat.c * (1 + mat.w);
+            const loads = Math.ceil(loose / truckSize);
+            
+            document.getElementById('looseVolume').textContent = loose.toFixed(2) + ' m³';
+            document.getElementById('deliveryLoads').textContent = loads + ' loads';
+            document.getElementById('compactionResults').classList.add('show');
+        }
+        
+        function calculateTrench() {
+            let volume, info = '';
+            
+            if (trenchMode === 'simple') {
+                const length = parseFloat(document.getElementById('trenchLength').value);
+                const width = parseFloat(document.getElementById('pipeSize').value);
+                const depth = parseFloat(document.getElementById('simpleDepth').value);
+                volume = length * width * depth;
+                
+            } else if (trenchMode === 'batter') {
+                const length = parseFloat(document.getElementById('batterLength').value);
+                const depth = parseFloat(document.getElementById('trenchDepth').value);
+                const bottom = parseFloat(document.getElementById('bottomWidth').value);
+                const batter = parseFloat(document.getElementById('batterSlope').value);
+                const top = bottom + (2 * depth * batter);
+                volume = length * ((bottom + top) / 2) * depth;
+                info = '<div class="result-item"><span class="result-label">Top Width:</span><span class="result-value">' + top.toFixed(2) + ' m</span></div>';
+                
+            } else {
+                const startInv = parseFloat(document.getElementById('mhStartInvert').value);
+                const endInv = parseFloat(document.getElementById('mhEndInvert').value);
+                const dist = parseFloat(document.getElementById('mhDistance').value);
+                const width = parseFloat(document.getElementById('mhWidth').value);
+                const cover = parseFloat(document.getElementById('mhCover').value);
+                
+                const fall = startInv - endInv;
+                const fallPerM = fall / dist;
+                const grad = 1 / fallPerM;
+                
+                const avgDepth = cover + 1.0;
+                volume = dist * width * avgDepth;
+                
+                info = '<div class="result-item"><span class="result-label">Fall:</span><span class="result-value">' + fall.toFixed(3) + ' m</span></div>';
+                info += '<div class="result-item"><span class="result-label">Gradient:</span><span class="result-value">1:' + Math.abs(grad).toFixed(1) + '</span></div>';
+            }
+            
+            document.getElementById('trenchInfo').innerHTML = info;
+            document.getElementById('trenchVolume').textContent = volume.toFixed(2) + ' m³';
+            document.getElementById('trenchResults').classList.add('show');
+        }
+        
+        function calculatePipeline() {
+            const start = parseFloat(document.getElementById('startLevel').value);
+            const end = parseFloat(document.getElementById('endLevel').value);
+            const dist = parseFloat(document.getElementById('distance').value);
+            const interval = parseFloat(document.getElementById('interval').value);
+            const bedding = parseFloat(document.getElementById('bedding').value);
+            
+            const fall = start - end;
+            const fallPerM = fall / dist;
+            const grad = 1 / fallPerM;
+            
+            document.getElementById('totalFall').textContent = fall.toFixed(3) + ' m';
+            document.getElementById('gradient').textContent = '1:' + Math.abs(grad).toFixed(1) + ' (' + Math.abs(fallPerM * 100).toFixed(2) + '%)';
+            
+            const table = document.getElementById('pegTable');
+            table.innerHTML = '';
+            
+            let d = 0, n = 0;
+            while (d <= dist) {
+                const inv = start - (d * fallPerM);
+                const bed = inv - bedding;
+                
+                const row = document.createElement('div');
+                row.className = 'peg-row';
+                if (n === 0 || d >= dist) row.classList.add('highlight');
+                
+                row.innerHTML = `
+                    <div class="peg-number">${n === 0 ? 'MH A' : (d >= dist ? 'MH B' : n)}</div>
+                    <div>
+                        <div>${d.toFixed(2)}m</div>
+                        <div class="peg-distance">Bed: ${bed.toFixed(3)}m</div>
+                    </div>
+                    <div class="peg-level">${inv.toFixed(3)}m</div>
+                `;
+                
+                table.appendChild(row);
+                
+                d += interval;
+                if (d > dist && Math.abs(d - dist) > 0.01) d = dist;
+                else if (d > dist) break;
+                n++;
+            }
+            
+            document.getElementById('pipelineResults').classList.add('show');
+        }
+        
+        // Initialize tab switching - working version for Samsung
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach((tab, index) => {
+                // Use touchstart for immediate response on mobile
+                tab.addEventListener('touchstart', function(e) {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                }, { passive: true });
+                
+                // Keep click for desktop
+                tab.addEventListener('click', function(e) {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
