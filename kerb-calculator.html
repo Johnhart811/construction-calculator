@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerb Pricing Calculator - Jbix Pty Ltd</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #667eea;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .result-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .result-unit {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .breakdown {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .breakdown-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 18px;
+            color: #667eea;
+            padding-top: 15px;
+        }
+
+        .breakdown-label {
+            color: #495057;
+        }
+
+        .breakdown-value {
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .quote-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .quote-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .quote-result {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .quote-result-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #856404;
+        }
+
+        .btn-calculate {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .result-value {
+                font-size: 36px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Kerb Pricing Calculator</h1>
+            <p>Professional kerb casting cost estimator - Jbix Pty Ltd</p>
+        </div>
+
+        <div class="content">
+            <div class="info-box">
+                ℹ️ This calculator estimates the selling price per meter for cast kerbs including materials, labour, plant, wastage, and profit margins.
+            </div>
+
+            <!-- Materials Section -->
+            <div class="section">
+                <div class="section-title">Materials</div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Kerb Cast (R/m)</label>
+                        <input type="number" id="kerbCast" value="170" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Concrete (R/m³)</label>
+                        <input type="number" id="concrete" value="1500" step="10">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Concrete Volume per Meter (m³)</label>
+                    <input type="number" id="concreteVolume" value="0.05" step="0.001">
+                </div>
+            </div>
+
+            <!-- Production Section -->
+            <div class="section">
+                <div class="section-title">Production</div>
+                <div class="input-group">
+                    <label>Production Rate (meters/day)</label>
+                    <input type="number" id="production" value="40" step="1">
+                </div>
+            </div>
+
+            <!-- Labour Section -->
+            <div class="section">
+                <div class="section-title">Labour Gang</div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Unskilled Workers</label>
+                        <input type="number" id="unskilledWorkers" value="3" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Unskilled Rate (R/hr)</label>
+                        <input type="number" id="unskilledRate" value="58.14" step="0.01">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Skilled Workers</label>
+                        <input type="number" id="skilledWorkers" value="1" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Skilled Rate (R/hr)</label>
+                        <input type="number" id="skilledRate" value="61.08" step="0.01">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Hours per Day</label>
+                    <input type="number" id="hoursPerDay" value="9" step="0.5">
+                </div>
+            </div>
+
+            <!-- Plant Section -->
+            <div class="section">
+                <div class="section-title">Plant</div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>TLB Rate (R/hr)</label>
+                        <input type="number" id="tlbRate" value="636.98" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>TLB Hours per Day</label>
+                        <input type="number" id="tlbHours" value="6" step="0.5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Markups Section -->
+            <div class="section">
+                <div class="section-title">Markups</div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Wastage (%)</label>
+                        <input type="number" id="wastage" value="10" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Production Cost (%)</label>
+                        <input type="number" id="productionCost" value="12" step="1">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Profit Margin (%)</label>
+                    <input type="number" id="profit" value="12" step="1">
+                </div>
+            </div>
+
+            <button class="btn-calculate" onclick="calculate()">Calculate Price</button>
+
+            <!-- Results -->
+            <div class="result-box" id="results">
+                <div class="result-label">Selling Price per Meter</div>
+                <div class="result-value">R<span id="sellingPrice">543.01</span></div>
+                <div class="result-unit">per meter</div>
+
+                <div class="breakdown">
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Kerb Cast</span>
+                        <span class="breakdown-value" id="kerbCastCost">R170.00</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Concrete</span>
+                        <span class="breakdown-value" id="concreteCost">R75.00</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Labour</span>
+                        <span class="breakdown-value" id="labourCost">R52.99</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Plant</span>
+                        <span class="breakdown-value" id="plantCost">R95.55</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Wastage</span>
+                        <span class="breakdown-value" id="wastageCost">R39.35</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Production Cost</span>
+                        <span class="breakdown-value" id="prodCost">R51.95</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Profit</span>
+                        <span class="breakdown-value" id="profitCost">R58.18</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">TOTAL PER METER</span>
+                        <span class="breakdown-value" id="totalCost">R543.01</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quote Calculator -->
+            <div class="quote-section">
+                <h3>💰 Quick Quote Generator</h3>
+                <div class="input-group">
+                    <label>Meters Required</label>
+                    <input type="number" id="quoteMeters" value="100" step="1" oninput="updateQuote()">
+                </div>
+                <div class="quote-result">
+                    <div style="font-size: 14px; color: #856404; margin-bottom: 5px;">Total Project Cost</div>
+                    <div class="quote-result-value">R<span id="quoteTotal">54,300.00</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Calculate on page load
+        window.onload = function() {
+            calculate();
+        };
+
+        // Auto-calculate when inputs change
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+
+        function calculate() {
+            // Get input values
+            const kerbCast = parseFloat(document.getElementById('kerbCast').value) || 0;
+            const concretePrice = parseFloat(document.getElementById('concrete').value) || 0;
+            const concreteVol = parseFloat(document.getElementById('concreteVolume').value) || 0;
+            const production = parseFloat(document.getElementById('production').value) || 1;
+            
+            const unskilledWorkers = parseFloat(document.getElementById('unskilledWorkers').value) || 0;
+            const unskilledRate = parseFloat(document.getElementById('unskilledRate').value) || 0;
+            const skilledWorkers = parseFloat(document.getElementById('skilledWorkers').value) || 0;
+            const skilledRate = parseFloat(document.getElementById('skilledRate').value) || 0;
+            const hours = parseFloat(document.getElementById('hoursPerDay').value) || 0;
+            
+            const tlbRate = parseFloat(document.getElementById('tlbRate').value) || 0;
+            const tlbHours = parseFloat(document.getElementById('tlbHours').value) || 0;
+            
+            const wastagePercent = parseFloat(document.getElementById('wastage').value) || 0;
+            const prodCostPercent = parseFloat(document.getElementById('productionCost').value) || 0;
+            const profitPercent = parseFloat(document.getElementById('profit').value) || 0;
+
+            // Calculate costs
+            const kerbCostPerM = kerbCast;
+            const concreteCostPerM = concretePrice * concreteVol;
+            
+            const labourPerDay = (unskilledWorkers * unskilledRate * hours) + (skilledWorkers * skilledRate * hours);
+            const labourPerM = labourPerDay / production;
+            
+            const plantPerDay = tlbRate * tlbHours;
+            const plantPerM = plantPerDay / production;
+            
+            // Subtotal
+            const subtotal = kerbCostPerM + concreteCostPerM + labourPerM + plantPerM;
+            
+            // Add wastage
+            const wastageAmount = subtotal * (wastagePercent / 100);
+            const subtotalWithWastage = subtotal + wastageAmount;
+            
+            // Add production cost
+            const prodCostAmount = subtotalWithWastage * (prodCostPercent / 100);
+            const cost = subtotalWithWastage + prodCostAmount;
+            
+            // Add profit
+            const profitAmount = cost * (profitPercent / 100);
+            const sellingPrice = cost + profitAmount;
+
+            // Update display
+            document.getElementById('kerbCastCost').textContent = 'R' + kerbCostPerM.toFixed(2);
+            document.getElementById('concreteCost').textContent = 'R' + concreteCostPerM.toFixed(2);
+            document.getElementById('labourCost').textContent = 'R' + labourPerM.toFixed(2);
+            document.getElementById('plantCost').textContent = 'R' + plantPerM.toFixed(2);
+            document.getElementById('wastageCost').textContent = 'R' + wastageAmount.toFixed(2);
+            document.getElementById('prodCost').textContent = 'R' + prodCostAmount.toFixed(2);
+            document.getElementById('profitCost').textContent = 'R' + profitAmount.toFixed(2);
+            document.getElementById('totalCost').textContent = 'R' + sellingPrice.toFixed(2);
+            document.getElementById('sellingPrice').textContent = sellingPrice.toFixed(2);
+
+            // Update quote
+            updateQuote();
+        }
+
+        function updateQuote() {
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').textContent) || 0;
+            const meters = parseFloat(document.getElementById('quoteMeters').value) || 0;
+            const total = sellingPrice * meters;
+            
+            document.getElementById('quoteTotal').textContent = total.toLocaleString('en-ZA', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+    </script>
+</body>
+</html>
