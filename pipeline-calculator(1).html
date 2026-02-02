@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Pipeline Setting Out Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 15px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .input-section {
+            padding: 25px 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s;
+            -webkit-appearance: none;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-row .input-group {
+            flex: 1;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .results {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 2px solid #e0e0e0;
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .gradient-info {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .gradient-info h3 {
+            font-size: 16px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .gradient-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        
+        .gradient-row strong {
+            color: #333;
+        }
+        
+        .peg-schedule {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .peg-schedule h3 {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .peg-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .peg-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 110px;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .peg-row:last-child {
+            border-bottom: none;
+        }
+        
+        .peg-row.start, .peg-row.end {
+            background: #fff3cd;
+            font-weight: 600;
+        }
+        
+        .peg-number {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 16px;
+        }
+        
+        .peg-distance {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .peg-level {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            text-align: right;
+        }
+        
+        .bedding-level {
+            font-size: 12px;
+            color: #999;
+            text-align: right;
+            margin-top: 3px;
+        }
+        
+        .footer {
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            background: white;
+        }
+        
+        .alert {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .peg-level {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Pipeline Setting Out</h1>
+            <p>Calculate invert levels at peg intervals</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="alert" id="alert"></div>
+            
+            <div class="input-group">
+                <label>Start Invert Level (Manhole A)</label>
+                <input type="number" id="startLevel" step="0.001" placeholder="e.g., 10.500" inputmode="decimal">
+            </div>
+            
+            <div class="input-group">
+                <label>End Invert Level (Manhole B)</label>
+                <input type="number" id="endLevel" step="0.001" placeholder="e.g., 9.700" inputmode="decimal">
+            </div>
+            
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Total Distance (m)</label>
+                    <input type="number" id="distance" step="0.1" placeholder="40" inputmode="decimal">
+                </div>
+                
+                <div class="input-group">
+                    <label>Peg Interval (m)</label>
+                    <input type="number" id="interval" step="0.1" placeholder="3" inputmode="decimal">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Bedding Below Invert (m)</label>
+                <input type="number" id="bedding" step="0.001" value="0.150" placeholder="0.150" inputmode="decimal">
+            </div>
+            
+            <button class="calculate-btn" onclick="calculate()">CALCULATE LEVELS</button>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="gradient-info">
+                <h3>📊 Gradient Information</h3>
+                <div class="gradient-row">
+                    <span>Total Fall:</span>
+                    <strong id="totalFall">-</strong>
+                </div>
+                <div class="gradient-row">
+                    <span>Fall per Meter:</span>
+                    <strong id="fallPerMeter">-</strong>
+                </div>
+                <div class="gradient-row">
+                    <span>Gradient Ratio:</span>
+                    <strong id="gradientRatio">-</strong>
+                </div>
+                <div class="gradient-row">
+                    <span>Gradient %:</span>
+                    <strong id="gradientPercent">-</strong>
+                </div>
+            </div>
+            
+            <div class="peg-schedule">
+                <h3>📍 PEG SCHEDULE - DUMPY READINGS</h3>
+                <div class="peg-table" id="pegTable"></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © 2026 Jbix Pty Ltd
+        </div>
+    </div>
+    
+    <script>
+        function calculate() {
+            // Get inputs
+            const startLevel = parseFloat(document.getElementById('startLevel').value);
+            const endLevel = parseFloat(document.getElementById('endLevel').value);
+            const distance = parseFloat(document.getElementById('distance').value);
+            const interval = parseFloat(document.getElementById('interval').value);
+            const bedding = parseFloat(document.getElementById('bedding').value) || 0.150;
+            
+            // Validate inputs
+            const alert = document.getElementById('alert');
+            if (isNaN(startLevel) || isNaN(endLevel) || isNaN(distance) || isNaN(interval)) {
+                alert.textContent = '⚠️ Please fill in all fields with valid numbers';
+                alert.classList.add('show');
+                return;
+            }
+            
+            if (interval <= 0 || distance <= 0) {
+                alert.textContent = '⚠️ Distance and interval must be greater than 0';
+                alert.classList.add('show');
+                return;
+            }
+            
+            if (interval > distance) {
+                alert.textContent = '⚠️ Interval cannot be greater than total distance';
+                alert.classList.add('show');
+                return;
+            }
+            
+            alert.classList.remove('show');
+            
+            // Calculate gradient info
+            const totalFall = startLevel - endLevel;
+            const fallPerMeter = totalFall / distance;
+            const gradientRatio = 1 / fallPerMeter;
+            const gradientPercent = fallPerMeter * 100;
+            
+            // Update gradient info
+            document.getElementById('totalFall').textContent = totalFall.toFixed(3) + ' m';
+            document.getElementById('fallPerMeter').textContent = fallPerMeter.toFixed(4) + ' m/m';
+            document.getElementById('gradientRatio').textContent = '1:' + Math.abs(gradientRatio).toFixed(1);
+            document.getElementById('gradientPercent').textContent = Math.abs(gradientPercent).toFixed(2) + '%';
+            
+            // Generate peg schedule
+            const pegTable = document.getElementById('pegTable');
+            pegTable.innerHTML = '';
+            
+            let currentDistance = 0;
+            let pegNumber = 0;
+            
+            while (currentDistance <= distance) {
+                const invertLevel = startLevel - (currentDistance * fallPerMeter);
+                const beddingLevel = invertLevel - bedding;
+                
+                const pegRow = document.createElement('div');
+                pegRow.className = 'peg-row';
+                
+                if (pegNumber === 0) {
+                    pegRow.classList.add('start');
+                } else if (currentDistance >= distance) {
+                    pegRow.classList.add('end');
+                }
+                
+                const pegDesc = pegNumber === 0 ? 'START' : (currentDistance >= distance ? 'END' : 'Peg ' + pegNumber);
+                
+                pegRow.innerHTML = `
+                    <div class="peg-number">${pegDesc}</div>
+                    <div class="peg-distance">${currentDistance.toFixed(2)}m</div>
+                    <div>
+                        <div class="peg-level">${invertLevel.toFixed(3)}m</div>
+                        <div class="bedding-level">Bed: ${beddingLevel.toFixed(3)}m</div>
+                    </div>
+                `;
+                
+                pegTable.appendChild(pegRow);
+                
+                currentDistance += interval;
+                pegNumber++;
+                
+                // Safety: don't generate more than 100 pegs
+                if (pegNumber > 100) break;
+            }
+            
+            // Show results
+            document.getElementById('results').classList.add('show');
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Allow Enter key to calculate
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculate();
+            }
+        });
+        
+        // Load saved values from localStorage
+        window.addEventListener('load', function() {
+            const saved = localStorage.getItem('pipelineCalcData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('startLevel').value = data.startLevel || '';
+                document.getElementById('endLevel').value = data.endLevel || '';
+                document.getElementById('distance').value = data.distance || '';
+                document.getElementById('interval').value = data.interval || '';
+                document.getElementById('bedding').value = data.bedding || '0.150';
+            }
+        });
+        
+        // Save values to localStorage on change
+        ['startLevel', 'endLevel', 'distance', 'interval', 'bedding'].forEach(id => {
+            document.getElementById(id).addEventListener('change', function() {
+                const data = {
+                    startLevel: document.getElementById('startLevel').value,
+                    endLevel: document.getElementById('endLevel').value,
+                    distance: document.getElementById('distance').value,
+                    interval: document.getElementById('interval').value,
+                    bedding: document.getElementById('bedding').value
+                };
+                localStorage.setItem('pipelineCalcData', JSON.stringify(data));
+            });
+        });
+    </script>
+</body>
+</html>
